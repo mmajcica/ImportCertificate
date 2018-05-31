@@ -17,30 +17,124 @@
     "Patch": "20"
   },
   "minimumAgentVersion": "2.115.0",
-  "instanceNameFormat": "ImportCertificate $(message)",
+  "instanceNameFormat": "Import $(secureFile)",
+  "groups": [
+    {
+        "displayName": "Destination machine",
+        "isExpanded": true,
+        "name": "server"
+    },
+    {
+      "name": "advanced",
+      "displayName": "Advanced Options",
+      "isExpanded": false
+    }
+  ],
   "inputs": [
+    {
+      "name": "importSource",
+      "type": "pickList",
+      "label": "Import from",
+      "required": true,
+      "defaultValue": "secureFile",
+      "options": {
+          "secureFile": "Secure Files library ",
+          "certificatePath": "File Path"
+      },
+      "helpMarkDown": "Select the location where the certificate is stored."
+    },
     {
       "name": "secureFile",
       "type": "secureFile",
       "label": "Secure File",
+      "visibleRule": "importSource = secureFile",
       "defaultValue": "",
       "required": true,
       "helpMarkDown": "Select the secure file to download to a temporary location on the agent. The file will be cleaned up after the build or release."
-  }
-  ],
-  "prejobexecution": {
-    "PowerShell3": {
-        "target": "pre-execution.ps1"
+    },
+    {
+      "name": "certificatePath",
+      "type": "filePath",
+      "label": "Certificate path",
+      "visibleRule": "importSource = certificatePath",
+      "required": true,
+      "helpMarkDown": "Path to the desired certificate."
+    },
+    {
+      "name": "pfxPassword",
+      "type": "string",
+      "label": "Certificate Password",
+      "required": false,
+      "helpMarkDown": "The MDS service for the MDS instance that will be used."
+    },
+    {
+      "name": "store",
+      "type": "string",
+      "label": "Certificate store",
+      "defaultValue": "WebHosting",
+      "required": true,
+      "helpMarkDown": "The MDS service for the MDS instance that will be used."
+    },
+    {
+      "name": "exportable",
+      "type": "boolean",
+      "label": "Exportable",
+      "required": false,
+      "defaultValue": "",
+      "helpMarkDown": "If catalog is shared, it will not be dropped durig the deployment."
+    },
+    {
+      "groupName": "server",
+      "name": "destinationServer",
+      "type": "string",
+      "label": "MDS Server",
+      "required": true,
+      "helpMarkDown": "The MDS service for the MDS instance that will be used."
+    },
+    {
+      "groupName": "server",
+      "name": "username",
+      "type": "string",
+      "label": "Username",
+      "required": true,
+      "helpMarkDown": "The MDS service for the MDS instance that will be used."
+    },
+    {
+      "groupName": "server",
+      "name": "password",
+      "type": "string",
+      "label": "Password",
+      "required": true,
+      "helpMarkDown": "The MDS service for the MDS instance that will be used."
+    },
+    {
+      "name": "useSsl",
+      "type": "boolean",
+      "label": "Use SSL",
+      "defaultValue": "false",
+      "required": false,
+      "groupName": "advanced",
+      "helpMarkDown": "Secure Socket layer connection will be used for WinRM connection."
+    },
+    {
+      "name": "TestCertificate",
+      "type": "boolean",
+      "label": "Using Test Certificate",
+      "defaultValue": "false",
+      "visibleRule": "useSsl = true",
+      "required": false,
+      "groupName": "advanced",
+      "helpMarkDown": "If this option is selected, client skips the validation that the server certificate is signed by a trusted certificate authority (CA) when connecting over Hypertext Transfer Protocol over Secure Socket Layer (HTTPS)."
     }
-  },
+  ],
   "execution": {
     "PowerShell3": {
-      "target": "execution.ps1"
+      "target": "task.ps1"
     }
   },
   "postjobexecution": {
       "PowerShell3": {
-          "target": "post-execution.ps1"
+          "target": "cleanup.ps1"
       }
   }
 }
